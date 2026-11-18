@@ -36,7 +36,7 @@
     "3": {
       "title": "Feedback entries",
       "type": "data",
-      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| summarize entries = count()\n",
+      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| summarize entries = count()\n",
       "visualization": "singleValue",
       "visualizationSettings": {
         "singleValue": {
@@ -59,7 +59,7 @@
     "4": {
       "title": "Thumbs-up rate (%)",
       "type": "data",
-      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| summarize up = countIf(thumbs == \"up\"), down = countIf(thumbs == \"down\")\n| fieldsAdd rate = if(up + down > 0, then: round(100.0 * up / (up + down), decimals: 1), else: 0.0)\n| fields rate\n",
+      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| summarize up = countIf(thumbs == \"up\"), down = countIf(thumbs == \"down\")\n| fieldsAdd rate = if(up + down > 0, then: round(100.0 * up / (up + down), decimals: 1), else: 0.0)\n| fields rate\n",
       "visualization": "singleValue",
       "visualizationSettings": {
         "singleValue": {
@@ -82,7 +82,7 @@
     "5": {
       "title": "Feedback over time",
       "type": "data",
-      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| fieldsAdd rating = coalesce(thumbs, \"comment only\")\n| makeTimeseries entries = count(), by: { rating }, interval: 1d\n",
+      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| fieldsAdd rating = coalesce(thumbs, \"comment only\")\n| makeTimeseries entries = count(), by: { rating }, interval: 1d\n",
       "visualization": "lineChart",
       "visualizationSettings": {
         "autoSelectVisualization": false,
@@ -107,7 +107,7 @@
     "6": {
       "title": "Feedback by app",
       "type": "data",
-      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| summarize entries = count(), by: { appName }\n| sort entries desc\n",
+      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| summarize entries = count(), by: { appName }\n| sort entries desc\n",
       "visualization": "pieChart",
       "visualizationSettings": {
         "autoSelectVisualization": false
@@ -128,7 +128,7 @@
     "7": {
       "title": "Feedback by feature",
       "type": "data",
-      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| summarize entries = count(), up = countIf(thumbs == \"up\"), down = countIf(thumbs == \"down\"), by: { appName, feedbackType }\n| sort entries desc\n",
+      "query": "fetch bizevents\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| summarize entries = count(), up = countIf(thumbs == \"up\"), down = countIf(thumbs == \"down\"), by: { appName, feedbackType }\n| sort entries desc\n",
       "visualization": "table",
       "visualizationSettings": {
         "autoSelectVisualization": false,
@@ -153,7 +153,7 @@
     "8": {
       "title": "Recent feedback",
       "type": "data",
-      "query": "fetch bizevents, from: $dt_timeframe_from, to: $dt_timeframe_to\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter \"$App\" == \"All\" or appName == \"$App\"\n| filter \"$Feature\" == \"All\" or feedbackType == \"$Feature\"\n| fieldsAdd sessionTs = formatTimestamp(timestamp, format: \"\"\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\"\"\")\n| fieldsAdd replay = if(isNotNull(dt.rum.session.id), then: concat(\"[▶ Replay](/ui/apps/dynatrace.users.sessions/session-viewer/\", dt.rum.session.id, \"/\", sessionTs, \")\"), else: \"\")\n| fieldsAdd device = concat(coalesce(device.type, \"?\"), \" · \", coalesce(os.name, \"?\"), \" · \", coalesce(browser.name, \"?\"))\n| fields timestamp, appName, appVersion, feedbackType, thumbs, feedback, replay, device, geo.country.name\n| sort timestamp desc\n| limit 1000\n",
+      "query": "fetch bizevents, from: $dt_timeframe_from, to: $dt_timeframe_to\n| filter event.type == \"feedback-form-submit\"\n| fieldsAdd appName = coalesce(appName, \"Unknown\"), feedbackType = coalesce(feedbackType, \"general\")\n| filter $App == \"All\" or appName == $App\n| filter $Feature == \"All\" or feedbackType == $Feature\n| fieldsAdd sessionTs = formatTimestamp(timestamp, format: \"\"\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\"\"\")\n| fieldsAdd replay = if(isNotNull(dt.rum.session.id), then: concat(\"[▶ Replay](/ui/apps/dynatrace.users.sessions/session-viewer/\", dt.rum.session.id, \"/\", sessionTs, \")\"), else: \"\")\n| fieldsAdd device = concat(coalesce(device.type, \"?\"), \" · \", coalesce(os.name, \"?\"), \" · \", coalesce(browser.name, \"?\"))\n| fields timestamp, appName, appVersion, feedbackType, thumbs, feedback, replay, device, geo.country.name\n| sort timestamp desc\n| limit 1000\n",
       "visualization": "table",
       "visualizationSettings": {
         "autoSelectVisualization": false,
